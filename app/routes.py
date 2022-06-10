@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, jsonify
 import os
 from dotenv import load_dotenv
@@ -24,6 +23,19 @@ def get_lat_lon():
 
     return jsonify(response.json())
 
+@proxy_bp.route("/city", methods=["GET"])
+def get_city():
+
+    lat_query = request.args.get("lat")
+    lon_query = request.args.get("lon")
+
+    if not lat_query or not lon_query:
+        return {"message": "must provide lan and lon params."}
+
+    response = requests.get("https://us1.locationiq.com/v1/reverse.php", params={"lat": lat_query, "lon": lon_query, "key": location_key, "format": "json"})
+
+    return jsonify(response.json())
+
 @proxy_bp.route("/weather", methods=["GET"])
 def get_weather():
     lat_query = request.args.get("lat")
@@ -34,7 +46,6 @@ def get_weather():
 
     response = requests.get(
         "https://api.openweathermap.org/data/2.5/onecall",
-        params={"lat": lat_query, "lon": lon_query, "appid": weather_key}
+        params={"lat": lat_query, "lon": lon_query, "appid": weather_key, "units": "imperial"}
     )
     return response.json()
-
